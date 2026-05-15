@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=Outfit:wght@200;300;400;500;600&family=Fira+Code:wght@300;400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script>emailjs.init("YOUR_PUBLIC_KEY");</script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -701,7 +703,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border-s);
         </div>
       </div>
       <div class="proj-links-col">
-        <a href="https://aneelaiqbal.vercel.app" target="_blank" class="plink primary">Live Site</a>
+        <a href="https://aneela-iqbal.vercel.app" target="_blank" class="plink primary">Live Site</a>
         <a href="https://github.com/iqbalaneela67-dot" target="_blank" class="plink">GitHub</a>
       </div>
     </div>
@@ -795,10 +797,10 @@ footer{background:var(--bg2);border-top:1px solid var(--border-s);
           </div>
           <span class="clink-arr">↗</span>
         </a>
-        <a href="https://aneelaiqbal.vercel.app" target="_blank" class="clink">
+        <a href="https://aneela-iqbal.vercel.app" target="_blank" class="clink">
           <div>
             <div class="clink-label">Portfolio</div>
-            <div class="clink-val">aneelaiqbal.vercel.app</div>
+            <div class="clink-val">aneela-iqbal.vercel.app</div>
           </div>
           <span class="clink-arr">↗</span>
         </a>
@@ -846,7 +848,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border-s);
 <!-- FOOTER -->
 <footer>
   <span class="foot-logo">Aneela Iqbal</span>
-  <span class="foot-copy">© 2025 · AI & Full Stack Developer · Islamabad, PK</span>
+  <span class="foot-copy">© <span id="yr"></span> · AI & Full Stack Developer · Islamabad, PK</span>
   <a href="#home" class="foot-back">Back to top ↑</a>
 </footer>
 
@@ -938,22 +940,33 @@ skBars.forEach(b=>skObs.observe(b));
 function sendMsg(){
   const name=document.getElementById('cf-name').value.trim();
   const email=document.getElementById('cf-email').value.trim();
+  const subj=document.getElementById('cf-subj').value.trim();
   const msg=document.getElementById('cf-msg').value.trim();
   const btn=document.getElementById('sendbtn');
   if(!name||!email||!msg){
     btn.textContent='Please fill all fields';btn.style.background='#c0392b';
     setTimeout(()=>{btn.textContent='Send Message →';btn.style.background='';},2500);return;
   }
-  btn.textContent='Sent ✓ — Thank you!';
-  btn.style.background='linear-gradient(135deg,#1a6b3a,#4ade80)';
-  setTimeout(()=>{
-    btn.textContent='Send Message →';btn.style.background='';
-    document.getElementById('cf-name').value='';
-    document.getElementById('cf-email').value='';
-    document.getElementById('cf-subj').value='';
-    document.getElementById('cf-msg').value='';
-  },3500);
+  btn.textContent='Sending...';btn.disabled=true;
+  const params={from_name:name,from_email:email,subject:subj||'Portfolio Inquiry',message:msg};
+  emailjs.send('YOUR_SERVICE_ID','YOUR_TEMPLATE_ID',params)
+    .then(()=>{
+      btn.textContent='Sent ✓ — Thank you!';
+      btn.style.background='linear-gradient(135deg,#1a6b3a,#4ade80)';
+      document.getElementById('cf-name').value='';
+      document.getElementById('cf-email').value='';
+      document.getElementById('cf-subj').value='';
+      document.getElementById('cf-msg').value='';
+      setTimeout(()=>{btn.textContent='Send Message →';btn.style.background='';btn.disabled=false;},3500);
+    })
+    .catch(()=>{
+      btn.textContent='Failed — Try Again';btn.style.background='#c0392b';btn.disabled=false;
+      setTimeout(()=>{btn.textContent='Send Message →';btn.style.background='';},3000);
+    });
 }
+
+// ── YEAR ──
+document.getElementById('yr').textContent=new Date().getFullYear();
 
 // ── SMOOTH LINKS ──
 document.querySelectorAll('a[href^="#"]').forEach(a=>{
