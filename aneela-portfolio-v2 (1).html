@@ -647,6 +647,10 @@ footer{background:var(--bg2);border-top:1px solid var(--bw-s);padding:1.75rem 4r
   <a href="#home" class="foot-back">Back to top ↑</a>
 </footer>
 
+<!-- EmailJS -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script>emailjs.init('6zZqbeJNyBS9go4tDHxz2');</script>
+
 <!-- ══════════════════════════════════════════ SCRIPTS -->
 <script>
 /* ── DATA ── */
@@ -870,26 +874,52 @@ document.querySelectorAll('a[href^="#"]').forEach(a=>{
 });
 
 /* ════════════════════════════════════════════
-   STEP 8 — CONTACT FORM
+   STEP 8 — CONTACT FORM (EmailJS)
    ════════════════════════════════════════════ */
 function sendMsg(){
   const name=document.getElementById('cf-name').value.trim();
   const email=document.getElementById('cf-email').value.trim();
+  const subj=document.getElementById('cf-subj').value.trim();
   const msg=document.getElementById('cf-msg').value.trim();
   const btn=document.getElementById('sendbtn');
+
   if(!name||!email||!msg){
     btn.textContent='Please fill all fields';
     btn.style.background='#c0392b';
-    setTimeout(()=>{btn.textContent='Send Message →';btn.style.background='';},2500);
+    setTimeout(()=>{btn.textContent='Send Message \u2192';btn.style.background='';},2500);
     return;
   }
-  btn.textContent='Sent ✓ — Thank you!';
-  btn.style.background='linear-gradient(135deg,#1a6b3a,#4ade80)';
-  btn.style.color='#040408';
-  setTimeout(()=>{
-    btn.textContent='Send Message →';btn.style.background='';btn.style.color='';
-    ['cf-name','cf-email','cf-subj','cf-msg'].forEach(id=>{document.getElementById(id).value='';});
-  },3500);
+
+  btn.textContent='Sending...';
+  btn.disabled=true;
+  btn.style.opacity='0.7';
+
+  emailjs.send('service_6wi17qo','template_705lg2d',{
+    from_name: name,
+    from_email: email,
+    subject: subj||'Portfolio Message',
+    message: msg,
+    reply_to: email,
+  })
+  .then(()=>{
+    btn.textContent='Sent \u2713 \u2014 Thank you!';
+    btn.style.background='linear-gradient(135deg,#1a6b3a,#4ade80)';
+    btn.style.color='#040408';
+    btn.style.opacity='1';
+    setTimeout(()=>{
+      btn.textContent='Send Message \u2192';
+      btn.style.background='';btn.style.color='';btn.disabled=false;
+      ['cf-name','cf-email','cf-subj','cf-msg'].forEach(id=>{document.getElementById(id).value='';});
+    },3500);
+  })
+  .catch(err=>{
+    console.error(err);
+    btn.textContent='Failed \u2014 Try Again';
+    btn.style.background='#c0392b';
+    btn.style.opacity='1';
+    btn.disabled=false;
+    setTimeout(()=>{btn.textContent='Send Message \u2192';btn.style.background='';},3000);
+  });
 }
 
 /* ════════════════════════════════════════════
